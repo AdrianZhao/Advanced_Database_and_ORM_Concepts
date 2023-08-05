@@ -1,25 +1,34 @@
-var builder = WebApplication.CreateBuilder(args);
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Advanced_Database_and_ORM_Concepts;
 
-// Add services to the container.
-builder.Services.AddRazorPages();
+HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
 
-var app = builder.Build();
+builder.Services.AddTransient<IExampleTransientService, ExampleTransientService>();
+builder.Services.AddScoped<IExampleScopedService, ExampleScopedService>();
+builder.Services.AddSingleton<IExampleSingletonService, ExampleSingletonService>();
+builder.Services.AddTransient<ServiceLifetimeReporter>();
 
-// Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
+using IHost host = builder.Build();
+
+ExemplifyServiceLifetime(host.Services, "Lifetime 1");
+ExemplifyServiceLifetime(host.Services, "Lifetime 2");
+
+await host.RunAsync();
+
+static void ExemplifyServiceLifetime(IServiceProvider hostProvider, string lifetime)
 {
-    app.UseExceptionHandler("/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
+    using IServiceScope serviceScope = hostProvider.CreateScope();
+    IServiceProvider provider = serviceScope.ServiceProvider;
+    ServiceLifetimeReporter logger = provider.GetRequiredService<ServiceLifetimeReporter>();
+    logger.ReportServiceLifetimeDetails(
+        $"{lifetime}: Call 1 to provider.GetRequiredService<ServiceLifetimeReporter>()");
+
+    Console.WriteLine("...");
+
+    logger = provider.GetRequiredService<ServiceLifetimeReporter>();
+    logger.ReportServiceLifetimeDetails(
+        $"{lifetime}: Call 2 to provider.GetRequiredService<ServiceLifetimeReporter>()");
+
+    Console.WriteLine();
 }
-
-app.UseHttpsRedirection();
-app.UseStaticFiles();
-
-app.UseRouting();
-
-app.UseAuthorization();
-
-app.MapRazorPages();
-
-app.Run();

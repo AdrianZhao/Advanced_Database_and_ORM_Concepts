@@ -1,0 +1,13 @@
+Why is it important that the IReportServiceLifetime class is an Interface?
+
+It is realy easy to switch different method when we need different method. Even our input is the same but by changing the Dependency of IReportServiceLifetime we don't have to change our code to use the new input
+
+What are the three types of service lifetimes available for use here? What is the difference between them?
+
+Transient services are always different, a new instance is created with every retrieval of the service.
+Scoped services change only with a new scope, but are the same instance within a scope.
+Singleton services are always the same, a new instance is only created once.
+
+Using the above information, what do we expect the lifetime is of an instance of a DbContext class injected into an Endpoint method? Into a seed method? 
+
+For an Endpoint method, a scoped services is suitable for most of the time. Becasue it only changes when a new instance been created. For seed method, Singleton services is better because it don't have new instance.
