@@ -1,5 +1,11 @@
+using Advanced_Database_and_ORM_Concepts.Data;
+using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
-
+string connectionString = builder.Configuration.GetConnectionString("AdvancedDatabaseAndORMConcepts_Lab4Context");
+builder.Services.AddDbContext<AdvancedDatabaseAndORMConceptsLab04Context>(options =>
+{
+    options.UseSqlServer(connectionString);
+});
 // Add services to the container.
 builder.Services.AddRazorPages();
 
